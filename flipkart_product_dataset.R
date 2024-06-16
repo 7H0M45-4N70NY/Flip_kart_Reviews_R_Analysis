@@ -29,13 +29,18 @@ library(ggplot2)
 tweets <-read.csv("flipkart_product.csv",fileEncoding = "latin1")
 
 #Data Cleaning
-
+starting_rows <- nrow(tweets)
 tweets$ProductName <- str_replace(tweets$ProductName, "\\?ÿ\\?ÿ", " ")
 tweets$Price=str_extract(tweets$Price, "\\b(\\d{1,4}(,\\d{3})*)\\b", group = 1)
 tweets$Summary <- str_replace_all(tweets$Summary,  "\\u0083|\\u009d|\\u008b|\\u008f", "")
 tweets$Summary <- str_replace_all(tweets$Summary,  "ð", "")
-ratings <- c("5","4","3","2","1")
-tweets=filter(tweets,Rate==ratings)
+
+tweets$Rate<-if_else(tweets$Rate=="Pigeon Favourite Electric Kettle?ÿ?ÿ(1.5 L, Silver, Black)",NA,
+                     (if_else(tweets$Rate=="Bajaj DX 2 L/W Dry Iron",NA,
+                              if_else(tweets$Rate=="Nova Plus Amaze NI 10 1100 W Dry Iron?ÿ?ÿ(Grey & Turquoise)",NA,
+                                      if_else(tweets$Rate=="s","5",tweets$Rate)))))
+
+tweets <- na.omit(tweets)
 
 ############################      Extracting Sentiments from Text using sentimentr
 
